@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart - MyShop</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
+body { background:#f5f0ff; }
+
+header {
+    background:#6a1b9a;
+    color:white;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+}
+.logo { font-size:24px; font-weight:bold; }
+nav { display:flex; gap:10px; flex-wrap:wrap; }
+nav a {
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    padding:8px 12px;
+    border-radius:5px;
+    transition:0.3s;
+}
+nav a:hover { background:#4a0072; }
+
+main {
+    max-width:1000px;
+    margin:40px auto;
+    padding:0 15px;
+}
+h1 { text-align:center; margin-bottom:30px; color:#512da8; }
+
+.cart-container {
+    display:flex;
+    flex-direction:column;
+    gap:25px;
+}
+
+.cart-item {
+    background:#fff;
+    border-radius:15px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    padding:20px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.cart-item img {
+    width:120px;
+    height:auto;
+    border-radius:10px;
+}
+
+.cart-details {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.cart-details h3 { color:#512da8; margin:0; font-size:18px; }
+.cart-details p { color:#e91e63; font-weight:bold; margin:0; font-size:16px; }
+
+.quantity-container {
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.quantity-container input {
+    width:60px;
+    padding:6px;
+    text-align:center;
+    border-radius:5px;
+    border:1px solid #ccc;
+}
+
+.cart-actions {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+.cart-actions button {
+    padding:8px 12px;
+    background:#e91e63;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+.cart-actions button:hover { background:#c2185b; }
+
+.total-container {
+    margin-top:30px;
+    text-align:right;
+    font-size:20px;
+    font-weight:bold;
+    color:#512da8;
+}
+
+/* Mobile responsiveness */
+@media (max-width:768px) {
+    header { flex-direction:column; align-items:flex-start; }
+    nav { width:100%; justify-content:flex-start; margin-top:10px; gap:5px; }
+    .cart-item { flex-direction:column; align-items:flex-start; gap:15px; }
+    .cart-actions { width:100%; flex-direction:row; justify-content:flex-start; }
+    .total-container { text-align:center; }
+}
+
+@media (max-width:480px) {
+    .logo { font-size:20px; }
+    nav a { padding:6px 10px; font-size:14px; }
+    h1 { font-size:22px; }
+    .cart-item img { width:100%; max-width:250px; margin-bottom:10px; }
+    .cart-actions { flex-direction:row; gap:10px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo">MyShop</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="cart.html">Cart</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
+
+<main>
+    <h1>Your Cart</h1>
+    <div class="cart-container" id="cartContainer"></div>
+    <div class="total-container" id="totalContainer">Total: ₹0</div>
+</main>
+
+<footer>
+    <p style="text-align: center;">&copy; 2025 MyShop. All rights reserved.</p>
+</footer>
+
+<script>
+function loadCart(){
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const container = document.getElementById('cartContainer');
+    container.innerHTML = '';
+    let total = 0;
+
+    cart.forEach((item,index)=>{
+        total += item.price*item.qty;
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <div class="cart-details">
+                <h3>${item.name}</h3>
+                <p>₹${item.price}</p>
+                <div class="quantity-container">Qty: <input type="number" min="1" value="${item.qty}"></div>
+            </div>
+            <div class="cart-actions">
+                <button>Remove</button>
+            </div>
+        `;
+
+        // Remove button
+        div.querySelector('button').addEventListener('click', ()=>{
+            cart.splice(index,1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        });
+
+        // Quantity change
+        div.querySelector('input').addEventListener('change',(e)=>{
+            let q = parseInt(e.target.value);
+            if(isNaN(q) || q < 1){ e.target.value = item.qty; return; }
+            item.qty = q;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        });
+
+        container.appendChild(div);
+    });
+
+    document.getElementById('totalContainer').innerText = `Total: ₹${total}`;
+}
+
+window.onload = loadCart;
+</script>
+
+</body>
+</html>
